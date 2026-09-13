@@ -493,6 +493,21 @@ export const api = {
       method: 'PUT',
       body: JSON.stringify({ role })
     });
+  },
+
+  deleteUserAccount: async (userId) => {
+    return await request(`/users/${userId}`, {
+      method: 'DELETE'
+    });
+  },
+
+  getAgencyRoster: async () => {
+    return await request('/users/agency/roster');
+  },
+
+  getAdminSystemStats: async () => {
+    return await request('/users/admin/system-stats');
   }
 };
+
 

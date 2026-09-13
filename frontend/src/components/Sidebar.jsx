@@ -8,21 +8,37 @@ import {
   Bell,
   FileText,
   Settings,
+  Building2,
+  Target,
+  ShieldAlert,
   LogOut,
   X
 } from 'lucide-react';
 
-export default function Sidebar({ activeTab, setActiveTab, onLogout, isMobileOpen, onCloseMobile }) {
-  const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+export default function Sidebar({ user, activeTab, setActiveTab, onLogout, isMobileOpen, onCloseMobile }) {
+  const role = (user?.role || 'creator').toLowerCase();
+
+  let menuItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard }
+  ];
+
+  if (role === 'agency') {
+    menuItems.push({ id: 'agency_hub', label: 'Agency Roster & Portfolio', icon: Building2 });
+  } else if (role === 'marketing') {
+    menuItems.push({ id: 'marketing_hub', label: 'Campaign Strategy Hub', icon: Target });
+  } else if (role === 'administrator' || role === 'admin') {
+    menuItems.push({ id: 'admin_console', label: 'System Admin Console', icon: ShieldAlert });
+  }
+
+  menuItems.push(
     { id: 'content', label: 'Content Analytics', icon: Video },
     { id: 'audience', label: 'Audience Analytics', icon: Users },
     { id: 'growth', label: 'Growth & Trends', icon: TrendingUp },
     { id: 'revenue', label: 'Revenue & Sponsorships', icon: DollarSign },
     { id: 'notifications', label: 'Notifications & Alerts', icon: Bell },
     { id: 'reports', label: 'Reports & Export', icon: FileText },
-    { id: 'settings', label: 'Profile & Settings', icon: Settings },
-  ];
+    { id: 'settings', label: 'Profile & Settings', icon: Settings }
+  );
 
   return (
     <>

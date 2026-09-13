@@ -15,13 +15,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install python packages
-COPY backend/requirements.txt /app/requirements.txt
+COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy entire project source
+# Copy backend source code
 COPY . /app
 
 EXPOSE 8000
 
-# Run FastAPI app with Uvicorn server
-CMD ["uvicorn", "backend.app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Set PYTHONPATH to /app so modules are importable
+ENV PYTHONPATH=/app
+
+# Run FastAPI app with Uvicorn server (dynamic PORT for Render)
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

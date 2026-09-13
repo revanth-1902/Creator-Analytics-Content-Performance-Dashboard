@@ -40,21 +40,27 @@ export default function AudienceView({ records, report, onAdd, onUpdate, onDelet
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* Top Report Cards */}
-      <div className="metrics-row" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
+      <div className="grid-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px', width: '100%' }}>
         <StatCard
-          label="Total Audience Followers"
-          value={report?.total_followers ? formatNumber(report.total_followers) : 'N/A'}
-          trend="Total Connected Audience"
+          title="Total Audience Followers"
+          value={report?.total_followers || 0}
+          subtitle="Total Connected Audience"
+          icon={Users}
+          color="indigo"
         />
         <StatCard
-          label="Total Organic Reach"
-          value={report?.total_reach ? formatNumber(report.total_reach) : 'N/A'}
-          trend="Omnichannel Impressions"
+          title="Total Organic Reach"
+          value={report?.total_reach || 0}
+          subtitle="Omnichannel Impressions"
+          icon={Globe}
+          color="emerald"
         />
         <StatCard
-          label="Total Impressions"
-          value={report?.total_impressions ? formatNumber(report.total_impressions) : 'N/A'}
-          trend="Audience Views Trajectory"
+          title="Total Impressions"
+          value={report?.total_impressions || 0}
+          subtitle="Audience Views Trajectory"
+          icon={PieChart}
+          color="purple"
         />
       </div>
 

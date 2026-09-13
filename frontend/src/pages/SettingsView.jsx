@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Lock, Server, Link2, Shield, CheckCircle, RefreshCw, Key, Mail, UserCheck, Sun, Moon, Palette } from 'lucide-react';
+import { User, Lock, Server, Link2, Shield, CheckCircle, RefreshCw, Key, Mail, UserCheck, Sun, Moon, Palette, Check } from 'lucide-react';
 import { api } from '../api';
 
 export default function SettingsView({ user, onUpdateUser, onOpenSocialModal, theme = 'light', onToggleTheme, accentColor = 'indigo', onSelectAccent }) {
@@ -318,7 +318,7 @@ export default function SettingsView({ user, onUpdateUser, onOpenSocialModal, th
                   }}
                   title={acc.name}
                 >
-                  {accentColor === acc.key ? '✓' : ''}
+                  {accentColor === acc.key ? <Check size={14} color="#ffffff" /> : null}
                 </button>
               ))}
             </div>

@@ -7,6 +7,7 @@ export default function Header({
   title,
   subtitle,
   user,
+  onUpdateUser,
   selectedPlatform = 'All',
   onPlatformChange,
   onAutoSync,
@@ -380,15 +381,40 @@ export default function Header({
             <span style={{ fontWeight: 700, fontSize: '13px', color: '#0f172a', lineHeight: 1.2 }}>
               {userName}
             </span>
-            <span style={{
-              fontSize: '10px',
-              fontWeight: 800,
-              textTransform: 'uppercase',
-              letterSpacing: '0.4px',
-              color: user?.role === 'agency' ? '#6b21a8' : user?.role === 'marketing' ? '#92400e' : (user?.role === 'administrator' || user?.role === 'admin') ? '#166534' : '#3730a3'
-            }}>
-              {user?.role ? user.role.toUpperCase() : 'CREATOR'}
-            </span>
+            {onUpdateUser ? (
+              <select
+                value={(user?.role || 'creator').toLowerCase() === 'admin' ? 'administrator' : (user?.role || 'creator').toLowerCase()}
+                onChange={(e) => onUpdateUser({ ...user, role: e.target.value })}
+                style={{
+                  fontSize: '10px',
+                  fontWeight: 800,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.4px',
+                  color: user?.role === 'agency' ? '#6b21a8' : user?.role === 'marketing' ? '#92400e' : (user?.role === 'administrator' || user?.role === 'admin') ? '#166534' : '#3730a3',
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  outline: 'none',
+                  padding: 0
+                }}
+                title="Quick Role Switcher: Preview & test all system roles"
+              >
+                <option value="creator">CREATOR</option>
+                <option value="agency">AGENCY</option>
+                <option value="marketing">MARKETING</option>
+                <option value="administrator">ADMINISTRATOR</option>
+              </select>
+            ) : (
+              <span style={{
+                fontSize: '10px',
+                fontWeight: 800,
+                textTransform: 'uppercase',
+                letterSpacing: '0.4px',
+                color: user?.role === 'agency' ? '#6b21a8' : user?.role === 'marketing' ? '#92400e' : (user?.role === 'administrator' || user?.role === 'admin') ? '#166534' : '#3730a3'
+              }}>
+                {user?.role ? user.role.toUpperCase() : 'CREATOR'}
+              </span>
+            )}
           </div>
           <button
             onClick={onLogout}

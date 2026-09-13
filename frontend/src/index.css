@@ -81,6 +81,15 @@
   --shadow-lg: 0 16px 32px -4px rgba(0, 0, 0, 0.6);
 }
 
+.grid-stats,
+.stat-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
+  gap: 16px !important;
+  width: 100% !important;
+  align-items: stretch !important;
+}
+
 .dark-theme .top-header {
   background: rgba(21, 29, 48, 0.92) !important;
   border-bottom-color: #26334d !important;

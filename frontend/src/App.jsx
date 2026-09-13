@@ -20,6 +20,10 @@ import ReportsView from './pages/ReportsView';
 import SettingsView from './pages/SettingsView';
 import AuthView from './pages/AuthView';
 
+import AgencyHubView from './pages/AgencyHubView';
+import MarketingHubView from './pages/MarketingHubView';
+import AdminConsoleView from './pages/AdminConsoleView';
+
 import AudienceModal from './components/AudienceModal';
 import ContentModal from './components/ContentModal';
 import YouTubeSyncModal from './components/YouTubeSyncModal';
@@ -29,6 +33,7 @@ import PlatformSyncModal from './components/PlatformSyncModal';
 import RevenueModal from './components/RevenueModal';
 import SponsorshipModal from './components/SponsorshipModal';
 
+import { Zap, ShieldAlert, Building2, Target } from 'lucide-react';
 import { api, getStoredToken, getStoredUser, clearAuthSession } from './api';
 
 export default function App() {
@@ -452,6 +457,12 @@ export default function App() {
     switch (activeTab) {
       case 'dashboard':
         return { title: 'Executive Overview', subtitle: 'Realtime KPIs, performance charts, and top platform metrics' };
+      case 'agency_hub':
+        return { title: 'Agency Roster & Portfolio Hub', subtitle: 'Managed client creators, agency contract splits, and network performance' };
+      case 'marketing_hub':
+        return { title: 'Marketing Campaign Strategy Hub', subtitle: 'Campaign reach milestones, sentiment velocity, and earned media value (EMV)' };
+      case 'admin_console':
+        return { title: 'System Administration Console', subtitle: 'User accounts management, role access controls, database & API health' };
       case 'content':
         return { title: 'Content Performance', subtitle: 'Manage library items, views, likes, shares & engagement rates' };
       case 'audience':
@@ -497,6 +508,93 @@ export default function App() {
             loading={loading}
           />
         );
+      case 'agency_hub':
+        if (!['agency', 'administrator', 'admin'].includes((user?.role || 'creator').toLowerCase())) {
+          return (
+            <div className="section-card" style={{ textAlign: 'center', padding: '48px 20px', backgroundColor: '#fff1f2', border: '1px solid #fecdd3', borderRadius: '16px' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#be123c' }}>403 Forbidden: Influencer Agency Role Required</h3>
+              <p style={{ fontSize: '13px', color: '#881337', marginTop: '6px', maxWidth: '520px', margin: '6px auto 0 auto' }}>
+                Your active account role is <strong>{(user?.role || 'creator').toUpperCase()}</strong>. Access to the Influencer Agency Portfolio & Roster Hub requires an <strong>Agency</strong> or <strong>Administrator</strong> account.
+              </p>
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: '20px' }}>
+                <button
+                  className="btn-primary"
+                  style={{ backgroundColor: '#7c3aed', border: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                  onClick={() => {
+                    const up = { ...user, role: 'agency' };
+                    setUser(up);
+                    try { localStorage.setItem('creatoriq_user', JSON.stringify(up)); } catch(e) {}
+                    showToast("Switched role to 'AGENCY' context!", 'success');
+                  }}
+                >
+                  <Building2 size={16} /> Switch to Agency Role Context
+                </button>
+                <button className="btn-secondary" style={{ padding: '10px 18px', borderRadius: '8px', border: '1px solid #cbd5e1', cursor: 'pointer', fontWeight: 700 }} onClick={() => setActiveTab('dashboard')}>
+                  Return to Dashboard
+                </button>
+              </div>
+            </div>
+          );
+        }
+        return <AgencyHubView onNavigateTab={setActiveTab} />;
+      case 'marketing_hub':
+        if (!['marketing', 'administrator', 'admin'].includes((user?.role || 'creator').toLowerCase())) {
+          return (
+            <div className="section-card" style={{ textAlign: 'center', padding: '48px 20px', backgroundColor: '#fff1f2', border: '1px solid #fecdd3', borderRadius: '16px' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#be123c' }}>403 Forbidden: Marketing Team Role Required</h3>
+              <p style={{ fontSize: '13px', color: '#881337', marginTop: '6px', maxWidth: '520px', margin: '6px auto 0 auto' }}>
+                Your active account role is <strong>{(user?.role || 'creator').toUpperCase()}</strong>. Access to the Campaign Strategy & Target Hub requires a <strong>Marketing Team</strong> or <strong>Administrator</strong> account.
+              </p>
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: '20px' }}>
+                <button
+                  className="btn-primary"
+                  style={{ backgroundColor: '#d97706', border: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                  onClick={() => {
+                    const up = { ...user, role: 'marketing' };
+                    setUser(up);
+                    try { localStorage.setItem('creatoriq_user', JSON.stringify(up)); } catch(e) {}
+                    showToast("Switched role to 'MARKETING' context!", 'success');
+                  }}
+                >
+                  <Target size={16} /> Switch to Marketing Role Context
+                </button>
+                <button className="btn-secondary" style={{ padding: '10px 18px', borderRadius: '8px', border: '1px solid #cbd5e1', cursor: 'pointer', fontWeight: 700 }} onClick={() => setActiveTab('dashboard')}>
+                  Return to Dashboard
+                </button>
+              </div>
+            </div>
+          );
+        }
+        return <MarketingHubView summary={summary} />;
+      case 'admin_console':
+        if (!['administrator', 'admin'].includes((user?.role || 'creator').toLowerCase())) {
+          return (
+            <div className="section-card" style={{ textAlign: 'center', padding: '48px 20px', backgroundColor: '#fff1f2', border: '1px solid #fecdd3', borderRadius: '16px' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#be123c' }}>403 Forbidden: Administrator Role Required</h3>
+              <p style={{ fontSize: '13px', color: '#881337', marginTop: '6px', maxWidth: '520px', margin: '6px auto 0 auto' }}>
+                Your active account role is <strong>{(user?.role || 'creator').toUpperCase()}</strong>. System Administration Console requires an <strong>Administrator</strong> account.
+              </p>
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: '20px' }}>
+                <button
+                  className="btn-primary"
+                  style={{ backgroundColor: '#059669', border: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                  onClick={() => {
+                    const up = { ...user, role: 'administrator' };
+                    setUser(up);
+                    try { localStorage.setItem('creatoriq_user', JSON.stringify(up)); } catch(e) {}
+                    showToast("Switched role to 'ADMINISTRATOR' context!", 'success');
+                  }}
+                >
+                  <ShieldAlert size={16} /> Elevate to Administrator Role
+                </button>
+                <button className="btn-secondary" style={{ padding: '10px 18px', borderRadius: '8px', border: '1px solid #cbd5e1', cursor: 'pointer', fontWeight: 700 }} onClick={() => setActiveTab('dashboard')}>
+                  Return to Dashboard
+                </button>
+              </div>
+            </div>
+          );
+        }
+        return <AdminConsoleView user={user} onUpdateUser={setUser} />;
       case 'content':
         return (
           <ContentView
@@ -601,6 +699,7 @@ export default function App() {
 
       {/* Left Sidebar Navigation (Desktop) */}
       <Sidebar
+        user={user}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         onLogout={handleLogout}
@@ -615,6 +714,13 @@ export default function App() {
           title={headerInfo.title}
           subtitle={headerInfo.subtitle}
           user={user}
+          onUpdateUser={(updatedUser) => {
+            setUser(updatedUser);
+            try {
+              localStorage.setItem('creatoriq_user', JSON.stringify(updatedUser));
+            } catch(e) {}
+            showToast(`Active role switched to '${(updatedUser.role || 'creator').toUpperCase()}' context!`, 'info');
+          }}
           selectedPlatform={selectedPlatform}
           onPlatformChange={setSelectedPlatform}
           onAutoSync={handleAutoSyncAll}

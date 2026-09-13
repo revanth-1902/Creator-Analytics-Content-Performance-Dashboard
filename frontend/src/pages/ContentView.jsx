@@ -180,26 +180,34 @@ export default function ContentView({ contents, onAdd, onUpdate, onDelete, onSyn
       </div>
 
       {/* Top Metric Summary Cards (4 Cards) */}
-      <div className="metrics-row" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+      <div className="grid-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px', width: '100%' }}>
         <StatCard
-          label={`${selectedPlatform && selectedPlatform !== 'All' ? selectedPlatform : 'Total'} Views`}
-          value={formatNumber(totalViews)}
-          trend="Cumulative Views"
+          title={`${selectedPlatform && selectedPlatform !== 'All' ? selectedPlatform : 'Total'} Views`}
+          value={totalViews}
+          subtitle="Cumulative View Count"
+          icon={Video}
+          color="indigo"
         />
         <StatCard
-          label="Total Engagements"
-          value={formatNumber(totalLikes + totalComments)}
-          trend="Reactions & Comments"
+          title="Total Engagements"
+          value={totalLikes + totalComments}
+          subtitle="Reactions & Comments"
+          icon={Sparkles}
+          color="purple"
         />
         <StatCard
-          label="Filtered Organic Reach"
-          value={formatNumber(totalReach)}
-          trend="Unique Reach"
+          title="Filtered Organic Reach"
+          value={totalReach}
+          subtitle="Unique Organic Audience Reach"
+          icon={TrendingUp}
+          color="emerald"
         />
         <StatCard
-          label="Avg Library Engagement"
+          title="Avg Library Engagement"
           value={`${avgEngagementRate}%`}
-          trend="Virality Ratio"
+          subtitle="Mean Engagement Velocity"
+          icon={Zap}
+          color="amber"
         />
       </div>
 
