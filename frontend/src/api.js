@@ -507,6 +507,30 @@ export const api = {
 
   getAdminSystemStats: async () => {
     return await request('/users/admin/system-stats');
+  },
+
+  getTrendingYouTubeVideos: async (timeframe = 'today', category = 'all') => {
+    return await request(`/youtube/trending?timeframe=${encodeURIComponent(timeframe)}&category=${encodeURIComponent(category)}`);
+  },
+
+  // AI Copilot & System Knowledge APIs
+  getAIQuickPrompts: async (role) => {
+    const q = role ? `?role=${encodeURIComponent(role)}` : '';
+    return await request(`/ai/quick-prompts${q}`);
+  },
+
+  sendAIChat: async (message) => {
+    return await request('/ai/chat', {
+      method: 'POST',
+      body: JSON.stringify({ message })
+    });
+  },
+
+  executeAITool: async (toolType, parameters = {}) => {
+    return await request('/ai/tool', {
+      method: 'POST',
+      body: JSON.stringify({ tool_type: toolType, parameters })
+    });
   }
 };
 

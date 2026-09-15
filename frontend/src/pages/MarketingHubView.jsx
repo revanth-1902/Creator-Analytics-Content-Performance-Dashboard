@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Target, Megaphone, TrendingUp, HeartHandshake, Flame, Sparkles, CheckCircle2, BarChart2 } from 'lucide-react';
 import StatCard from '../components/StatCard';
 import SentimentCard from '../components/SentimentCard';
-import { FormattedCurrency } from '../utils/format';
+import { FormattedCurrency, FormattedNumber } from '../utils/format';
 
 export default function MarketingHubView({ summary }) {
   const [campaigns, setCampaigns] = useState([
@@ -46,7 +46,7 @@ export default function MarketingHubView({ summary }) {
         />
         <StatCard
           title="Campaign Reach Target"
-          value={`${(totalAchieved / 1000000).toFixed(1)}M / ${(totalTarget / 1000000).toFixed(1)}M`}
+          value={<FormattedNumber value={totalAchieved} />}
           subtitle={`${((totalAchieved / totalTarget) * 100).toFixed(1)}% Total Target Achieved`}
           icon={TrendingUp}
           color="emerald"
@@ -101,9 +101,17 @@ export default function MarketingHubView({ summary }) {
                 return (
                   <tr key={c.id}>
                     <td style={{ fontWeight: 800, color: '#0f172a' }}>{c.title}</td>
-                    <td style={{ fontWeight: 600, color: '#475569' }}>{c.client}</td>
-                    <td style={{ fontWeight: 700 }}>{c.target_reach.toLocaleString()}</td>
-                    <td style={{ fontWeight: 700, color: '#2563eb' }}>{c.current_reach.toLocaleString()}</td>
+                    <td style={{ fontWeight: 600, color: '#475569' }}>
+                      <span style={{ fontSize: '12px', fontWeight: 700, backgroundColor: '#fef3c7', color: '#92400e', padding: '3px 8px', borderRadius: '12px', border: '1px solid #fef08a' }}>
+                        {c.client}
+                      </span>
+                    </td>
+                    <td style={{ fontWeight: 800, color: '#0f172a' }}>
+                      <FormattedNumber value={c.target_reach} />
+                    </td>
+                    <td style={{ fontWeight: 800, color: '#2563eb' }}>
+                      <FormattedNumber value={c.current_reach} />
+                    </td>
                     <td style={{ minWidth: '140px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <div style={{ flex: 1, height: '8px', backgroundColor: '#e2e8f0', borderRadius: '9999px', overflow: 'hidden' }}>
@@ -112,7 +120,7 @@ export default function MarketingHubView({ summary }) {
                         <span style={{ fontSize: '12px', fontWeight: 800, color: '#334155' }}>{pct}%</span>
                       </div>
                     </td>
-                    <td style={{ fontWeight: 700 }}>
+                    <td style={{ fontWeight: 800, color: '#0f172a' }}>
                       <FormattedCurrency value={c.budget} />
                     </td>
                     <td style={{ fontWeight: 800, color: '#059669' }}>
@@ -120,7 +128,9 @@ export default function MarketingHubView({ summary }) {
                     </td>
                     <td>
                       <span style={{
-                        display: 'inline-block',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
                         padding: '4px 10px',
                         borderRadius: '9999px',
                         fontSize: '11px',
@@ -129,7 +139,8 @@ export default function MarketingHubView({ summary }) {
                         color: pct >= 100 ? '#047857' : '#b45309',
                         border: `1px solid ${pct >= 100 ? '#a7f3d0' : '#fde68a'}`
                       }}>
-                        {c.status}
+                        <CheckCircle2 size={13} color={pct >= 100 ? '#047857' : '#b45309'} />
+                        <span>{c.status}</span>
                       </span>
                     </td>
                   </tr>

@@ -9,6 +9,10 @@ export function formatNumber(num, minThreshold = 1000) {
   const val = Number(num);
   const abs = Math.abs(val);
 
+  if (abs >= 1_000_000_000_000) {
+    const formatted = (val / 1_000_000_000_000).toFixed(abs >= 10_000_000_000_000 ? 1 : 2);
+    return formatted.replace(/\.0+$/, '') + 'T';
+  }
   if (abs >= 1_000_000_000) {
     const formatted = (val / 1_000_000_000).toFixed(abs >= 10_000_000_000 ? 1 : 2);
     return formatted.replace(/\.0+$/, '') + 'B';

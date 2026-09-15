@@ -23,6 +23,8 @@ import AuthView from './pages/AuthView';
 import AgencyHubView from './pages/AgencyHubView';
 import MarketingHubView from './pages/MarketingHubView';
 import AdminConsoleView from './pages/AdminConsoleView';
+import TrendingView from './pages/TrendingView';
+import AICopilotView from './pages/AICopilotView';
 
 import AudienceModal from './components/AudienceModal';
 import ContentModal from './components/ContentModal';
@@ -157,6 +159,18 @@ export default function App() {
 
     if (savedToken && savedUser) {
       setUser(savedUser);
+      // Synchronize latest user profile & role from backend database
+      api.getCurrentUserProfile()
+        .then(profile => {
+          if (profile && profile.role) {
+            const updatedUser = { ...savedUser, ...profile, name: profile.full_name || profile.name || savedUser.name };
+            setUser(updatedUser);
+            try {
+              localStorage.setItem('creatoriq_user', JSON.stringify(updatedUser));
+            } catch (e) {}
+          }
+        })
+        .catch(() => {});
     } else {
       setUser(null);
     }
@@ -465,6 +479,10 @@ export default function App() {
         return { title: 'System Administration Console', subtitle: 'User accounts management, role access controls, database & API health' };
       case 'content':
         return { title: 'Content Performance', subtitle: 'Manage library items, views, likes, shares & engagement rates' };
+      case 'ai_copilot':
+        return { title: 'AI Copilot & Knowledge Assistant', subtitle: 'Interactive platform AI assistant with full live database awareness and role specialist tools' };
+      case 'trending':
+        return { title: 'YouTube Trending & Viral Explorer', subtitle: 'Explore top viral videos across Today, Past 7 Days (Last Week), and 30 Days (1 Month) with live metrics & YouTube playback links' };
       case 'audience':
         return { title: 'Audience Analytics', subtitle: 'Demographics, device distribution, and demographic database records' };
       case 'growth':
@@ -509,88 +527,17 @@ export default function App() {
           />
         );
       case 'agency_hub':
-        if (!['agency', 'administrator', 'admin'].includes((user?.role || 'creator').toLowerCase())) {
-          return (
-            <div className="section-card" style={{ textAlign: 'center', padding: '48px 20px', backgroundColor: '#fff1f2', border: '1px solid #fecdd3', borderRadius: '16px' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#be123c' }}>403 Forbidden: Influencer Agency Role Required</h3>
-              <p style={{ fontSize: '13px', color: '#881337', marginTop: '6px', maxWidth: '520px', margin: '6px auto 0 auto' }}>
-                Your active account role is <strong>{(user?.role || 'creator').toUpperCase()}</strong>. Access to the Influencer Agency Portfolio & Roster Hub requires an <strong>Agency</strong> or <strong>Administrator</strong> account.
-              </p>
-              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: '20px' }}>
-                <button
-                  className="btn-primary"
-                  style={{ backgroundColor: '#7c3aed', border: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
-                  onClick={() => {
-                    const up = { ...user, role: 'agency' };
-                    setUser(up);
-                    try { localStorage.setItem('creatoriq_user', JSON.stringify(up)); } catch(e) {}
-                    showToast("Switched role to 'AGENCY' context!", 'success');
-                  }}
-                >
-                  <Building2 size={16} /> Switch to Agency Role Context
-                </button>
-                <button className="btn-secondary" style={{ padding: '10px 18px', borderRadius: '8px', border: '1px solid #cbd5e1', cursor: 'pointer', fontWeight: 700 }} onClick={() => setActiveTab('dashboard')}>
-                  Return to Dashboard
-                </button>
-              </div>
-            </div>
-          );
-        }
         return <AgencyHubView onNavigateTab={setActiveTab} />;
       case 'marketing_hub':
-        if (!['marketing', 'administrator', 'admin'].includes((user?.role || 'creator').toLowerCase())) {
-          return (
-            <div className="section-card" style={{ textAlign: 'center', padding: '48px 20px', backgroundColor: '#fff1f2', border: '1px solid #fecdd3', borderRadius: '16px' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#be123c' }}>403 Forbidden: Marketing Team Role Required</h3>
-              <p style={{ fontSize: '13px', color: '#881337', marginTop: '6px', maxWidth: '520px', margin: '6px auto 0 auto' }}>
-                Your active account role is <strong>{(user?.role || 'creator').toUpperCase()}</strong>. Access to the Campaign Strategy & Target Hub requires a <strong>Marketing Team</strong> or <strong>Administrator</strong> account.
-              </p>
-              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: '20px' }}>
-                <button
-                  className="btn-primary"
-                  style={{ backgroundColor: '#d97706', border: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
-                  onClick={() => {
-                    const up = { ...user, role: 'marketing' };
-                    setUser(up);
-                    try { localStorage.setItem('creatoriq_user', JSON.stringify(up)); } catch(e) {}
-                    showToast("Switched role to 'MARKETING' context!", 'success');
-                  }}
-                >
-                  <Target size={16} /> Switch to Marketing Role Context
-                </button>
-                <button className="btn-secondary" style={{ padding: '10px 18px', borderRadius: '8px', border: '1px solid #cbd5e1', cursor: 'pointer', fontWeight: 700 }} onClick={() => setActiveTab('dashboard')}>
-                  Return to Dashboard
-                </button>
-              </div>
-            </div>
-          );
-        }
         return <MarketingHubView summary={summary} />;
       case 'admin_console':
-        if (!['administrator', 'admin'].includes((user?.role || 'creator').toLowerCase())) {
+        if (!['administrator', 'admin'].includes((user?.role || '').toLowerCase())) {
           return (
-            <div className="section-card" style={{ textAlign: 'center', padding: '48px 20px', backgroundColor: '#fff1f2', border: '1px solid #fecdd3', borderRadius: '16px' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#be123c' }}>403 Forbidden: Administrator Role Required</h3>
-              <p style={{ fontSize: '13px', color: '#881337', marginTop: '6px', maxWidth: '520px', margin: '6px auto 0 auto' }}>
-                Your active account role is <strong>{(user?.role || 'creator').toUpperCase()}</strong>. System Administration Console requires an <strong>Administrator</strong> account.
+            <div className="section-card" style={{ padding: '40px', textAlign: 'center' }}>
+              <h2 style={{ color: '#e11d48', fontSize: '20px', fontWeight: 800 }}>Access Restricted</h2>
+              <p style={{ color: '#64748b', fontSize: '13px', marginTop: '6px' }}>
+                The System Administration & Role Management Console is strictly restricted to Administrators.
               </p>
-              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: '20px' }}>
-                <button
-                  className="btn-primary"
-                  style={{ backgroundColor: '#059669', border: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
-                  onClick={() => {
-                    const up = { ...user, role: 'administrator' };
-                    setUser(up);
-                    try { localStorage.setItem('creatoriq_user', JSON.stringify(up)); } catch(e) {}
-                    showToast("Switched role to 'ADMINISTRATOR' context!", 'success');
-                  }}
-                >
-                  <ShieldAlert size={16} /> Elevate to Administrator Role
-                </button>
-                <button className="btn-secondary" style={{ padding: '10px 18px', borderRadius: '8px', border: '1px solid #cbd5e1', cursor: 'pointer', fontWeight: 700 }} onClick={() => setActiveTab('dashboard')}>
-                  Return to Dashboard
-                </button>
-              </div>
             </div>
           );
         }
@@ -605,8 +552,13 @@ export default function App() {
             onSyncYouTube={handleSyncYouTube}
             selectedPlatform={selectedPlatform}
             onSelectPlatform={setSelectedPlatform}
+            onNavigateTab={setActiveTab}
           />
         );
+      case 'ai_copilot':
+        return <AICopilotView user={user} />;
+      case 'trending':
+        return <TrendingView />;
       case 'audience':
         return (
           <AudienceView
@@ -719,7 +671,12 @@ export default function App() {
             try {
               localStorage.setItem('creatoriq_user', JSON.stringify(updatedUser));
             } catch(e) {}
-            showToast(`Active role switched to '${(updatedUser.role || 'creator').toUpperCase()}' context!`, 'info');
+            const roleLower = (updatedUser.role || 'creator').toLowerCase();
+            if (roleLower === 'agency') setActiveTab('agency_hub');
+            else if (roleLower === 'marketing') setActiveTab('marketing_hub');
+            else if (['administrator', 'admin'].includes(roleLower)) setActiveTab('admin_console');
+            else setActiveTab('dashboard');
+            showToast(`Active role switched to '${roleLower.toUpperCase()}' context!`, 'info');
           }}
           selectedPlatform={selectedPlatform}
           onPlatformChange={setSelectedPlatform}

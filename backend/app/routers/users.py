@@ -103,12 +103,12 @@ def get_all_users(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Retrieve all registered users (accessible by Administrator and Agency roles for user management)."""
-    user_role = (current_user.role or "creator").lower()
-    if user_role not in ["administrator", "admin", "agency"]:
-        # Return at least the current user for self-viewing if role is lower
-        return [current_user]
-    
+    """Retrieve all registered users from the database for directory and role management."""
+    if (current_user.role or "").lower() not in ["administrator", "admin"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access forbidden: Administrator authorization required to view user directory"
+        )
     return db.query(User).order_by(User.id.asc()).all()
 
 
@@ -119,7 +119,13 @@ def update_user_role(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Update role for a user (Administrator permission required)."""
+    """Update role for a user in real-time."""
+    if (current_user.role or "").lower() not in ["administrator", "admin"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access forbidden: Administrator authorization required to reassign user roles"
+        )
+
     new_role = payload.get("role")
     if not new_role or new_role.lower() not in ["creator", "agency", "marketing", "administrator"]:
         raise HTTPException(
@@ -152,12 +158,11 @@ def delete_user_account(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Delete a user account (Administrator restricted)."""
-    user_role = (current_user.role or "creator").lower()
-    if user_role not in ["administrator", "admin"]:
+    """Delete a user account."""
+    if (current_user.role or "").lower() not in ["administrator", "admin"]:
         raise HTTPException(
-            status_code=403,
-            detail="Administrator permissions required to delete accounts"
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access forbidden: Administrator authorization required to delete user accounts"
         )
 
     target = db.query(User).filter(User.id == user_id).first()
@@ -165,7 +170,7 @@ def delete_user_account(
         raise HTTPException(status_code=404, detail="User not found")
 
     if target.id == current_user.id:
-        raise HTTPException(status_code=400, detail="Cannot delete your own logged-in administrator account")
+        raise HTTPException(status_code=400, detail="Cannot delete your own logged-in user account")
 
     db.delete(target)
     db.commit()

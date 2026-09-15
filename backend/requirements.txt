@@ -1,3 +1,8 @@
+email-validator>=2.0.0
+bcrypt>=4.0.0
+python-jose[cryptography]>=3.3.0
+requests>=2.28.0
+httpx>=0.24.0
 annotated-doc==0.0.5
 annotated-types==0.8.0
 anyio==4.14.2

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Building2, Users, DollarSign, TrendingUp, ShieldCheck, RefreshCw, Award } from 'lucide-react';
+import { Building2, Users, DollarSign, TrendingUp, ShieldCheck, RefreshCw, Award, CheckCircle2 } from 'lucide-react';
 import StatCard from '../components/StatCard';
-import { FormattedCurrency } from '../utils/format';
+import { FormattedCurrency, FormattedNumber } from '../utils/format';
 import { api } from '../api';
 
 export default function AgencyHubView({ onNavigateTab }) {
@@ -25,10 +25,11 @@ export default function AgencyHubView({ onNavigateTab }) {
   };
 
   const roster = rosterData?.roster || [
-    { name: 'T-Series Official', handle: '@tseries', platform: 'YouTube', category: 'Music & Cinema', contract_type: 'Exclusive Agency Partner', reach: 245000000, views: 158000000, estimated_revenue: 1250000, commission_pct: 12.0, commission_earned: 150000, status: 'Active & Syncing' },
-    { name: 'Think Music South', handle: '@thinkmusicsouth', platform: 'YouTube', category: 'Regional Music & OST', contract_type: 'Digital Distribution & PR', reach: 89000000, views: 42000000, estimated_revenue: 480000, commission_pct: 15.0, commission_earned: 72000, status: 'Active & Syncing' },
-    { name: 'Pawan Kalyan', handle: '@PawanKalyan', platform: 'X', category: 'Public & Politics', contract_type: 'Campaign Analytics Client', reach: 64000000, views: 28000000, estimated_revenue: 350000, commission_pct: 10.0, commission_earned: 35000, status: 'Active & Syncing' },
-    { name: 'Narendra Modi', handle: '@narendramodi', platform: 'X', category: 'Public Leadership', contract_type: 'Institutional Monitoring', reach: 185000000, views: 95000000, estimated_revenue: 850000, commission_pct: 10.0, commission_earned: 85000, status: 'Active & Syncing' }
+    { name: 'T-Series Official', handle: '@tseries', platform: 'YouTube', category: 'Music & Cinema', contract_type: 'Exclusive Agency Partner', reach: 6523554726034, views: 3544912710313, estimated_revenue: 638100000, commission_pct: 12.0, commission_earned: 76600000, status: 'Active & Syncing' },
+    { name: 'Think Music South', handle: '@thinkmusicsouth', platform: 'YouTube', category: 'Regional Music & OST', contract_type: 'Digital Distribution & PR', reach: 6523554726034, views: 3544912710313, estimated_revenue: 638100000, commission_pct: 15.0, commission_earned: 95700000, status: 'Active & Syncing' },
+    { name: 'Pawan Kalyan', handle: '@PawanKalyan', platform: 'X', category: 'Public & Politics', contract_type: 'Campaign Analytics Client', reach: 281143358719, views: 152004400637, estimated_revenue: 27400000, commission_pct: 10.0, commission_earned: 2740000, status: 'Active & Syncing' },
+    { name: 'Narendra Modi', handle: '@narendramodi', platform: 'X', category: 'Public Leadership', contract_type: 'Institutional Monitoring', reach: 494039515553, views: 266931565994, estimated_revenue: 48100000, commission_pct: 10.0, commission_earned: 4810000, status: 'Active & Syncing' },
+    { name: 'Revanth Agency Hub', handle: 'test123@gmail.com', platform: 'Multi-Platform', category: 'Verified Influencer', contract_type: 'Direct Roster', reach: 24500000, views: 15800000, estimated_revenue: 53000, commission_pct: 15.0, commission_earned: 8000, status: 'Active & Syncing' }
   ];
 
   const totalReach = rosterData?.total_client_reach || roster.reduce((acc, item) => acc + item.reach, 0);
@@ -48,17 +49,13 @@ export default function AgencyHubView({ onNavigateTab }) {
               </h2>
             </div>
             <p style={{ fontSize: '13px', color: '#e9d5ff', marginTop: '6px', fontWeight: 500 }}>
-              Multi-creator client management, brand deal commission tracking, and network performance scoring.
+              Omnichannel agency metrics, client commissions, and multi-creator revenue splits.
             </p>
           </div>
 
-          <button
-            onClick={fetchRoster}
-            className="btn-primary"
-            style={{ backgroundColor: '#9333ea', borderColor: '#a855f7' }}
-          >
+          <button onClick={fetchRoster} className="btn-primary" style={{ backgroundColor: '#7c3aed', borderColor: '#a78bfa' }}>
             <RefreshCw size={14} className={loading ? 'spin' : ''} />
-            <span>Sync Agency Directory</span>
+            <span>Sync Roster Data</span>
           </button>
         </div>
       </div>
@@ -66,17 +63,10 @@ export default function AgencyHubView({ onNavigateTab }) {
       {/* Agency KPI Overview Cards */}
       <div className="grid-stats">
         <StatCard
-          title="Creators Managed"
-          value={roster.length}
-          subtitle="Active Roster Accounts"
+          title="Total Managed Client Reach"
+          value={<FormattedNumber value={totalReach} />}
+          subtitle="Aggregate Audience Reach"
           icon={Users}
-          color="purple"
-        />
-        <StatCard
-          title="Total Network Reach"
-          value={totalReach >= 1000000 ? `${(totalReach / 1000000).toFixed(1)}M` : totalReach.toLocaleString()}
-          subtitle="Combined Organic Impressions"
-          icon={TrendingUp}
           color="indigo"
         />
         <StatCard
@@ -130,15 +120,27 @@ export default function AgencyHubView({ onNavigateTab }) {
                   <td style={{ fontWeight: 800, color: '#0f172a' }}>{item.name}</td>
                   <td>
                     <div style={{ fontWeight: 700, color: '#4f46e5' }}>{item.handle}</div>
-                    <div style={{ fontSize: '11px', color: '#64748b' }}>{item.platform}</div>
+                    <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>{item.platform}</div>
                   </td>
-                  <td style={{ fontSize: '12px', fontWeight: 600, color: '#475569' }}>{item.category}</td>
-                  <td style={{ fontWeight: 700 }}>{(item.reach || 0).toLocaleString()}</td>
-                  <td style={{ fontWeight: 700 }}>{(item.views || 0).toLocaleString()}</td>
+                  <td>
+                    <span style={{ fontSize: '11px', fontWeight: 700, backgroundColor: '#f1f5f9', color: '#334155', padding: '3px 8px', borderRadius: '12px', border: '1px solid #cbd5e1' }}>
+                      {item.category}
+                    </span>
+                  </td>
+                  <td style={{ fontWeight: 800, color: '#0f172a' }}>
+                    <FormattedNumber value={item.reach} />
+                  </td>
+                  <td style={{ fontWeight: 800, color: '#0f172a' }}>
+                    <FormattedNumber value={item.views} />
+                  </td>
                   <td style={{ fontWeight: 800, color: '#059669' }}>
                     <FormattedCurrency value={item.estimated_revenue} />
                   </td>
-                  <td style={{ fontWeight: 700, color: '#7c3aed' }}>{item.commission_pct}% Split</td>
+                  <td>
+                    <span style={{ fontSize: '11px', fontWeight: 800, backgroundColor: '#f3e8ff', color: '#6b21a8', padding: '3px 8px', borderRadius: '12px', border: '1px solid #d8b4fe' }}>
+                      {item.commission_pct}% Split
+                    </span>
+                  </td>
                   <td style={{ fontWeight: 800, color: '#d97706' }}>
                     <FormattedCurrency value={item.commission_earned} />
                   </td>
@@ -156,7 +158,7 @@ export default function AgencyHubView({ onNavigateTab }) {
                       border: '1px solid #bbf7d0'
                     }}>
                       <CheckCircle2 size={13} color="#166534" />
-                      <span>{item.status || 'Active'}</span>
+                      <span>{item.status || 'Active & Syncing'}</span>
                     </span>
                   </td>
                 </tr>

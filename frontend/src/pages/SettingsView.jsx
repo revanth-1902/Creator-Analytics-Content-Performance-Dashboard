@@ -17,10 +17,22 @@ export default function SettingsView({ user, onUpdateUser, onOpenSocialModal, th
   const [usersList, setUsersList] = useState([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
 
+  const isAdmin = ['administrator', 'admin'].includes((user?.role || '').toLowerCase());
+
+  useEffect(() => {
+    if (user) {
+      setFullName(user.full_name || user.name || user.email?.split('@')[0] || 'Creator');
+      setEmail(user.email || 'creator@creatoriq.com');
+      setUserRole(user.role || 'creator');
+    }
+  }, [user]);
+
   useEffect(() => {
     fetchSystemStatus();
-    fetchUsersList();
-  }, []);
+    if (isAdmin) {
+      fetchUsersList();
+    }
+  }, [user?.role]);
 
   const fetchSystemStatus = async () => {
     try {
@@ -37,6 +49,7 @@ export default function SettingsView({ user, onUpdateUser, onOpenSocialModal, th
   };
 
   const fetchUsersList = async () => {
+    if (!isAdmin) return;
     setLoadingUsers(true);
     try {
       const res = await api.getAllUsers();
@@ -58,7 +71,7 @@ export default function SettingsView({ user, onUpdateUser, onOpenSocialModal, th
       localStorage.setItem('creatoriq_user', JSON.stringify(updated));
       if (onUpdateUser) onUpdateUser(updated);
       setSavingProfile(false);
-      alert(`Profile & Role ('${userRole.toUpperCase()}') updated successfully!`);
+      alert(`Profile updated successfully!`);
     }, 500);
   };
 
@@ -75,6 +88,17 @@ export default function SettingsView({ user, onUpdateUser, onOpenSocialModal, th
       alert(`User role updated to '${newRole.toUpperCase()}' successfully!`);
     } catch (e) {
       alert(`Failed to update user role: ${e.message}`);
+    }
+  };
+
+  const handleDeleteUser = async (targetUserId, targetEmail) => {
+    if (!window.confirm(`Are you sure you want to permanently delete user '${targetEmail}'?`)) return;
+    try {
+      await api.deleteUserAccount(targetUserId);
+      setUsersList(prev => prev.filter(u => u.id !== targetUserId));
+      alert(`User account '${targetEmail}' deleted successfully!`);
+    } catch (e) {
+      alert(`Failed to delete user: ${e.message}`);
     }
   };
 
@@ -167,25 +191,44 @@ export default function SettingsView({ user, onUpdateUser, onOpenSocialModal, th
               <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>
                 Account Role (RBAC):
               </label>
-              <select
-                value={userRole}
-                onChange={(e) => setUserRole(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  borderRadius: '8px',
-                  border: '1px solid #cbd5e1',
-                  fontSize: '13px',
-                  fontWeight: 700,
-                  backgroundColor: '#ffffff',
-                  color: '#0f172a'
-                }}
-              >
-                <option value="creator">Content Creator (Personal Analytics)</option>
-                <option value="agency">Influencer Agency (Multi-Creator Networks)</option>
-                <option value="marketing">Marketing Team (Campaign Reach & ROI)</option>
-                <option value="administrator">Administrator (System & Role Management)</option>
-              </select>
+              {isAdmin ? (
+                <select
+                  value={userRole}
+                  onChange={(e) => setUserRole(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: '8px',
+                    border: '1px solid #cbd5e1',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    backgroundColor: '#ffffff',
+                    color: '#0f172a'
+                  }}
+                >
+                  <option value="creator">Content Creator (Personal Analytics)</option>
+                  <option value="agency">Influencer Agency (Multi-Creator Networks)</option>
+                  <option value="marketing">Marketing Team (Campaign Reach & ROI)</option>
+                  <option value="administrator">Administrator (System & Role Management)</option>
+                </select>
+              ) : (
+                <input
+                  type="text"
+                  value={(userRole || 'CREATOR').toUpperCase()}
+                  disabled
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: '8px',
+                    border: '1px solid #cbd5e1',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    backgroundColor: '#f1f5f9',
+                    color: '#64748b',
+                    cursor: 'not-allowed'
+                  }}
+                />
+              )}
             </div>
 
             <button
@@ -194,7 +237,7 @@ export default function SettingsView({ user, onUpdateUser, onOpenSocialModal, th
               className="btn-add"
               style={{ width: '100%', backgroundColor: '#2563eb', fontWeight: 700 }}
             >
-              {savingProfile ? 'Saving Changes...' : 'Save Profile & Role Changes'}
+              {savingProfile ? 'Saving Changes...' : 'Save Profile Changes'}
             </button>
           </form>
 
@@ -397,93 +440,119 @@ export default function SettingsView({ user, onUpdateUser, onOpenSocialModal, th
         </div>
       </div>
 
-      {/* Role-Based Access Control & User Management Section (Module 1 Requirement) */}
-      <div className="section-card">
-        <div className="section-header">
-          <div>
-            <h3 className="section-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Shield size={20} color="#7c3aed" />
-              <span>User & Role Access Control Management (RBAC)</span>
-            </h3>
-            <p style={{ fontSize: '12px', color: '#64748b', margin: '2px 0 0 0' }}>
-              Module 1 Roles: Creator, Agency, Marketing Team, Administrator
-            </p>
+      {/* Role-Based Access Control & User Management Section (Administrator Only) */}
+      {isAdmin && (
+        <div className="section-card">
+          <div className="section-header">
+            <div>
+              <h3 className="section-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Shield size={20} color="#7c3aed" />
+                <span>User & Role Access Control Management (RBAC)</span>
+              </h3>
+              <p style={{ fontSize: '12px', color: '#64748b', margin: '2px 0 0 0' }}>
+                Module 1 Roles: Creator, Agency, Marketing Team, Administrator
+              </p>
+            </div>
+            <button
+              onClick={fetchUsersList}
+              className="btn-secondary"
+              style={{ fontSize: '12px', padding: '6px 12px', display: 'flex', alignItems: 'center', gap: '6px' }}
+            >
+              <RefreshCw size={14} className={loadingUsers ? 'spin' : ''} />
+              <span>Refresh Directory</span>
+            </button>
           </div>
-          <button
-            onClick={fetchUsersList}
-            className="btn-secondary"
-            style={{ fontSize: '12px', padding: '6px 12px', display: 'flex', alignItems: 'center', gap: '6px' }}
-          >
-            <RefreshCw size={14} className={loadingUsers ? 'spin' : ''} />
-            <span>Refresh Directory</span>
-          </button>
-        </div>
 
-        <div style={{ overflowX: 'auto', marginTop: '14px' }}>
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>User ID</th>
-                <th>Full Name</th>
-                <th>Email Address</th>
-                <th>Current Role</th>
-                <th>Role Reassignment</th>
-              </tr>
-            </thead>
-            <tbody>
-              {usersList.length > 0 ? (
-                usersList.map((u) => (
-                  <tr key={u.id}>
-                    <td style={{ fontWeight: 700 }}>#{u.id}</td>
-                    <td style={{ fontWeight: 700, color: '#0f172a' }}>{u.full_name || u.name}</td>
-                    <td style={{ color: '#475569' }}>{u.email}</td>
-                    <td>
-                      <span style={{
-                        display: 'inline-block',
-                        padding: '4px 10px',
-                        borderRadius: '9999px',
-                        fontSize: '11px',
-                        fontWeight: 800,
-                        textTransform: 'uppercase',
-                        backgroundColor: u.role === 'agency' ? '#f3e8ff' : u.role === 'marketing' ? '#fef3c7' : (u.role === 'administrator' || u.role === 'admin') ? '#dcfce7' : '#e0e7ff',
-                        color: u.role === 'agency' ? '#6b21a8' : u.role === 'marketing' ? '#92400e' : (u.role === 'administrator' || u.role === 'admin') ? '#166534' : '#3730a3'
-                      }}>
-                        {u.role ? u.role.toUpperCase() : 'CREATOR'}
-                      </span>
-                    </td>
-                    <td>
-                      <select
-                        value={u.role || 'creator'}
-                        onChange={(e) => handleRoleUpdateForUser(u.id, e.target.value)}
-                        style={{
-                          padding: '6px 10px',
-                          borderRadius: '8px',
-                          border: '1px solid #cbd5e1',
-                          fontSize: '12px',
-                          fontWeight: 700,
-                          backgroundColor: '#ffffff',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        <option value="creator">Creator</option>
-                        <option value="agency">Agency</option>
-                        <option value="marketing">Marketing Team</option>
-                        <option value="administrator">Administrator</option>
-                      </select>
+          <div style={{ overflowX: 'auto', marginTop: '14px' }}>
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>User ID</th>
+                  <th>Full Name</th>
+                  <th>Email Address</th>
+                  <th>Current Role</th>
+                  <th>Role Reassignment</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {usersList.length > 0 ? (
+                  usersList.map((u) => {
+                    const isSelf = user && user.id === u.id;
+                    return (
+                      <tr key={u.id}>
+                        <td style={{ fontWeight: 700 }}>#{u.id}</td>
+                        <td style={{ fontWeight: 700, color: '#0f172a' }}>
+                          {u.full_name || u.name} {isSelf && <span style={{ fontSize: '10px', color: '#16a34a', fontWeight: 800 }}>(You)</span>}
+                        </td>
+                        <td style={{ color: '#475569' }}>{u.email}</td>
+                        <td>
+                          <span style={{
+                            display: 'inline-block',
+                            padding: '4px 10px',
+                            borderRadius: '9999px',
+                            fontSize: '11px',
+                            fontWeight: 800,
+                            textTransform: 'uppercase',
+                            backgroundColor: u.role === 'agency' ? '#f3e8ff' : u.role === 'marketing' ? '#fef3c7' : (u.role === 'administrator' || u.role === 'admin') ? '#dcfce7' : '#e0e7ff',
+                            color: u.role === 'agency' ? '#6b21a8' : u.role === 'marketing' ? '#92400e' : (u.role === 'administrator' || u.role === 'admin') ? '#166534' : '#3730a3'
+                          }}>
+                            {u.role ? u.role.toUpperCase() : 'CREATOR'}
+                          </span>
+                        </td>
+                        <td>
+                          <select
+                            value={u.role || 'creator'}
+                            onChange={(e) => handleRoleUpdateForUser(u.id, e.target.value)}
+                            style={{
+                              padding: '6px 10px',
+                              borderRadius: '8px',
+                              border: '1px solid #cbd5e1',
+                              fontSize: '12px',
+                              fontWeight: 700,
+                              backgroundColor: '#ffffff',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            <option value="creator">Creator</option>
+                            <option value="agency">Agency</option>
+                            <option value="marketing">Marketing Team</option>
+                            <option value="administrator">Administrator</option>
+                          </select>
+                        </td>
+                        <td>
+                          <button
+                            onClick={() => handleDeleteUser(u.id, u.email)}
+                            disabled={isSelf}
+                            style={{
+                              backgroundColor: isSelf ? '#f1f5f9' : '#fff1f2',
+                              color: isSelf ? '#94a3b8' : '#e11d48',
+                              border: `1px solid ${isSelf ? '#e2e8f0' : '#fecdd3'}`,
+                              borderRadius: '6px',
+                              padding: '4px 10px',
+                              fontSize: '11px',
+                              fontWeight: 700,
+                              cursor: isSelf ? 'not-allowed' : 'pointer'
+                            }}
+                          >
+                            Delete Account
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan={6} style={{ textAlign: 'center', color: '#64748b', padding: '20px' }}>
+                      {loadingUsers ? 'Loading registered users list...' : 'No users found in database directory.'}
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={5} style={{ textAlign: 'center', color: '#64748b', padding: '20px' }}>
-                    {loadingUsers ? 'Loading registered users list...' : 'No users found in database directory.'}
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Backend Infrastructure Status Monitor */}
       <div className="section-card">

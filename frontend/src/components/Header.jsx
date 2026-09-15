@@ -397,7 +397,7 @@ export default function Header({
                   outline: 'none',
                   padding: 0
                 }}
-                title="Quick Role Switcher: Preview & test all system roles"
+                title="Quick Role Switcher: Switch system roles"
               >
                 <option value="creator">CREATOR</option>
                 <option value="agency">AGENCY</option>

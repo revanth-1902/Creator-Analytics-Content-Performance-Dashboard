@@ -12,6 +12,7 @@ from backend.app.routers.sponsorships import router as sponsorships_router
 from backend.app.routers.notifications import router as notifications_router
 from backend.app.routers.reports import router as reports_router
 from backend.app.routers.platforms import router as platforms_router
+from backend.app.routers.ai import router as ai_router
 
 from backend.app.db.init_db import init_db
 
@@ -66,6 +67,8 @@ app.include_router(notifications_router)
 app.include_router(notifications_router, prefix="/api")
 app.include_router(reports_router)
 app.include_router(reports_router, prefix="/api")
+app.include_router(ai_router)
+app.include_router(ai_router, prefix="/api")
 
 
 @app.get("/")

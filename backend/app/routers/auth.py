@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from backend.app.db.database import get_db
 from backend.app.models.user import User
-from backend.app.schemas.auth import LoginRequest
+from backend.app.schemas.auth import LoginRequest, RegisterRequest
 from backend.app.core.security import verify_password
 from backend.app.core.jwt import create_access_token
 
@@ -52,13 +52,13 @@ def login(
 
 @router.post("/register")
 def register(
-    request: dict,
+    request: RegisterRequest,
     db: Session = Depends(get_db)
 ):
-    email = request.get("email")
-    password = request.get("password")
-    full_name = request.get("full_name", email.split("@")[0] if email else "Creator")
-    role = request.get("role", "creator")
+    email = request.email
+    password = request.password
+    full_name = request.full_name or (email.split("@")[0] if email else "Creator")
+    role = request.role or "creator"
 
     if not email or not password:
         raise HTTPException(status_code=400, detail="Email and password are required")

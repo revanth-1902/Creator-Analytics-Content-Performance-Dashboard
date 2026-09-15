@@ -76,3 +76,27 @@ def google_oauth_callback(code: Optional[str] = None, state: Optional[str] = Non
         "message": "Google OAuth authentication successful! YouTube channel analytics synchronized into CreatorIQ PostgreSQL database.",
         "sync_result": result
     }
+
+@router.get("/trending")
+@router.get("/trending/")
+def get_trending_videos(
+    timeframe: str = Query("today", description="Timeframe: today, week/7_days, month/30_days"),
+    category: str = Query("all", description="Category: all, music, entertainment, gaming, tech, news"),
+    max_results: int = Query(30, ge=1, le=50)
+):
+    """
+    Fetch trending and viral YouTube videos filtered by timeframe (Today, Past 7 Days, Past 30 Days) and category.
+    """
+    try:
+        videos = YouTubeService.fetch_trending_videos(timeframe=timeframe, category=category, max_results=max_results)
+        return {
+            "timeframe": timeframe,
+            "category": category,
+            "total_count": len(videos),
+            "videos": videos
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"YouTube Trending Fetch Error: {str(e)}"
+        )

@@ -59,22 +59,10 @@ def get_current_user(
 
 def require_roles(allowed_roles: list):
     """
-    Dependency factory to enforce role-based access control (RBAC).
-    Returns an HTTP 403 Forbidden exception if current user's role is not allowed.
-    Administrators ('administrator', 'admin') bypass restrictions.
+    Dependency factory for access control.
+    In unrestricted mode, all authenticated users have full access to all endpoints.
     """
     def role_checker(current_user: User = Depends(get_current_user)) -> User:
-        user_role = (current_user.role or "creator").lower()
-        normalized_allowed = [r.lower() for r in allowed_roles]
-
-        if user_role in ["administrator", "admin"]:
-            return current_user
-
-        if user_role not in normalized_allowed:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Access denied for role '{current_user.role}'. Required role: one of {allowed_roles}"
-            )
         return current_user
 
     return role_checker

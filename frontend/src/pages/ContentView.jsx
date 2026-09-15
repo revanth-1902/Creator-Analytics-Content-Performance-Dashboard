@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Edit2, Trash2, Video, Search, Layers, Share2, Sparkles, TrendingUp, Zap } from 'lucide-react';
+import { Plus, Edit2, Trash2, Video, Search, Layers, Share2, Sparkles, TrendingUp, Zap, Flame } from 'lucide-react';
 import ContentModal from '../components/ContentModal';
 import StatCard from '../components/StatCard';
 import YouTubeSyncModal from '../components/YouTubeSyncModal';
@@ -22,7 +22,7 @@ const platformIconMap = {
   Facebook: { icon: Share2, color: '#2563eb', bg: '#eff6ff' },
 };
 
-export default function ContentView({ contents, onAdd, onUpdate, onDelete, onSyncYouTube, selectedPlatform, onSelectPlatform }) {
+export default function ContentView({ contents, onAdd, onUpdate, onDelete, onSyncYouTube, selectedPlatform, onSelectPlatform, onNavigateTab }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isYouTubeModalOpen, setIsYouTubeModalOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
@@ -154,6 +154,28 @@ export default function ContentView({ contents, onAdd, onUpdate, onDelete, onSyn
               }}
             />
           </div>
+
+          {onNavigateTab && (
+            <button
+              onClick={() => onNavigateTab('trending')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 14px',
+                borderRadius: '8px',
+                border: '1px solid #fecaca',
+                backgroundColor: '#fff1f2',
+                color: '#be123c',
+                fontWeight: 800,
+                fontSize: '13px',
+                cursor: 'pointer'
+              }}
+            >
+              <Flame size={16} color="#dc2626" />
+              <span>Explore YouTube Trending</span>
+            </button>
+          )}
 
           {onSyncYouTube && (
             <button
